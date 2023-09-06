@@ -74,19 +74,19 @@
                                 <div class="col-12 mb-4 text-center">
                                     <span class="lcd-title">register 1</span>
                                     <div class="lcd">
-                                        {{ register1 }}
+                                        {{ register1 || placeholder }}
                                     </div>
                                 </div>
                                 <div class="col-12 mb-4 text-center">
                                     <span class="lcd-title">register 2</span>
                                     <div class="lcd">
-                                        {{ register2 }}
+                                        {{ register2 || placeholder }}
                                     </div>
                                 </div>
                                 <div class="col-12 mb-4 text-center">
                                     <span class="lcd-title">register 3</span>
                                     <div class="lcd">
-                                        {{ register3 }}
+                                        {{ register3 || placeholder }}
                                     </div>
                                 </div>
                             </div>
@@ -152,7 +152,7 @@
                                 </div>
 
                                 <div class="col-3">
-                                    <div class="key">
+                                    <div class="key" @click="symbolPressed('+')">
                                         <div class="key-type">+</div>
                                     </div>
                                 </div>
@@ -173,7 +173,7 @@
                                 </div>
 
                                 <div class="col-3">
-                                    <div class="key">
+                                    <div class="key" @click="symbolPressed('-')">
                                         <div class="key-type">-</div>
                                     </div>
                                 </div>
@@ -298,17 +298,35 @@
         '16': {
             enableContinuousUpdates: true,
         },
-        '21': {
-            //verb
-            //load1  -> register 1
+        '21': function () {
+            // Implement logic for '21' verb
+            // You can use this.inputValue to get the value entered by the user
+            // Example: Load value into register 1
+            const value = this.inputValue;
+            this.register1 = `+${value}`;
+            // Clear inputValue and update inputMode
+            this.inputValue = '';
+            this.inputMode = 'NONE';
         },
-        '22': {
-            //verb
-            //load2 -> register 2
+
+        '22': function () {
+            // Implement logic for '22' verb
+            // Example: Load value into register 2
+            const value = this.inputValue;
+            this.register2 = `+${value}`;
+            // Clear inputValue and update inputMode
+            this.inputValue = '';
+            this.inputMode = 'NONE';
         },
-        '23': {
-            //verb
-            //load3-> register 3
+
+        '23': function () {
+            // Implement logic for '23' verb
+            // Example: Load value into register 3
+            const value = this.inputValue;
+            this.register3 = `+${value}`;
+            // Clear inputValue and update inputMode
+            this.inputValue = '';
+            this.inputMode = 'NONE';
         },
         '34': function (RAM, vueInstance) {
             // Stop continuous updates
@@ -320,10 +338,15 @@
             // vueInstance.register2 = '000000';
             // vueInstance.register3 = '000000';
         },
-        '41': {
-            //verb
-            //terminate
-            // for example stop continues display update
+        '41': function (RAM, vueInstance) {
+            // Initialize or clear angles array
+            RAM.angles = [];
+            // Change VERB to 21 to request the first angle
+            vueInstance.verb = '21';
+            // Change NOUN to 57 to signify angle of telescope
+            vueInstance.noun = '57';
+            vueInstance.isFlashingVerb = false;  // Stop flashing for VERB
+            vueInstance.isFlashingNoun = false;  // Stop flashing for NOUN
         },
         '55': function (RAM, vueInstance) {
             //noun
@@ -389,11 +412,15 @@
             prevNoun: '00',
             isFlashingVerb: false,
             isFlashingNoun: false,
+            isEnteringRegister1: false,
+            isEnteringRegister2: false,
+            isEnteringRegister3: false,
             verb: '00',
             noun: '00',
             register1: '000000',
             register2: '000000',
             register3: '000000',
+            placeholder: '______',
             inputMode: null,
             updateAllowed: false,
             ROMItems: [],
@@ -456,6 +483,7 @@
                 const verbData = ROMDictionary[this.verb];
                 const nounData = ROMDictionary[this.noun];
 
+
                 if (this.verb === '34') {
                     ROMDictionary['34'](RAMDictionary, this);
                     // Log the current action
@@ -468,6 +496,82 @@
                     });
                     return;  // Early return to skip the rest of the logic
                 }
+
+                // If VERB is 41 and NOUN is 55, start the process to point the optics
+                if (this.verb === '41' && this.noun === '55') {
+                    ROMDictionary['41'](RAMDictionary, this);
+                    this.isFlashingVerb = true;  // Start flashing for VERB
+                    this.isFlashingNoun = true;  // Start flashing for NOUN
+                    this.register1 = ''
+                    this.isEnteringRegister1 = true;
+                    this.isEnteringRegister2 = false;
+                    this.isEnteringRegister3 = false;
+                    return;  // Early return
+                }
+
+
+                // If VERB is 21 or 22 and NOUN is 57, store the angle and proceed
+                if (this.verb === '21' && this.noun === '57') {
+                    this.isFlashingVerb = true;  // Start flashing for VERB
+                    this.isFlashingNoun = true;  // Start flashing for NOUN
+                    // Store the first angle into register1
+                    this.register2 = this.inputValue;
+                    // Change VERB to 22 to request the second angle
+                    this.verb = '22';
+                    // Clear the inputValue for the next input
+                    this.inputValue = '';
+                    // this.register1 = ''
+                    this.isEnteringRegister1 = false;
+                    this.isEnteringRegister2 = true;
+                    this.isEnteringRegister3 = false;
+                    return;
+                }
+
+                // If VERB is 22 and NOUN is 57, store the second angle and proceed
+                if (this.verb === '22' && this.noun === '57') {
+                    this.isFlashingVerb = false;  // Start flashing for VERB
+                    this.isFlashingNoun = false;  // Start flashing for NOUN
+                    // this.register1 = ''
+                    this.register2 = this.inputValue;
+                    this.verb = '06';
+                    this.noun = '56';
+                    // this.isEnteringRegister1 = false;
+                    // this.isEnteringRegister2 = true;
+                    // this.isEnteringRegister3 = false;
+                    // any other logic like logging, updating other variables etc.
+                    return; // Early return
+                }
+
+                // If VERB is 06 and NOUN is 56, mark information with register1: angle1, register2: angle2, register3: time
+                if (this.verb === '06' && this.noun === '56') {
+                    // Prepare the data to be displayed
+                    const angle1 = this.register1; // Assuming angle1 is in register1
+                    const angle2 = this.register2; // Assuming angle2 is in register2
+                    const time = RAMDictionary.timeOfMeasurement || '000000'; // Get the time from RAM, default to '000000' if not set
+
+                    // Change VERB to 06 (Display) and NOUN to 56
+                    this.verb = '06';
+                    this.noun = '56';
+
+                    // Update the registers with the prepared data
+                    this.register1 = angle1;
+                    this.register2 = angle2;
+                    this.register3 = time;
+
+                    // Optionally, log this action in your action log
+                    this.actionLog.push({
+                        verb: '06',
+                        noun: '56',
+                        register1: angle1,
+                        register2: angle2,
+                        register3: time
+                    });
+
+                    // Additional logic can be added here if needed
+
+                    return; // Early return
+                }
+
 
 
                 if (verbData && verbData.enableContinuousUpdates) {
@@ -495,6 +599,10 @@
                     register3: this.register3
                 });
 
+                this.isEnteringRegister1 = false;
+                this.isEnteringRegister2 = false;
+                this.isEnteringRegister3 = false;
+
                 // console.log(this.actionLog);
             },
 
@@ -519,6 +627,13 @@
                 this.isFlashingNoun = true;  // Start flashing for NOUN
                 this.inputValue = '';
                 this.inputMode = 'NOUN';
+            },
+            symbolPressed: function (symbol) {
+                if (this.verb === '21' && this.noun === '57') {
+                    this.register1 = `${symbol}${this.register1}`;
+                } else if (this.inputValue.indexOf('+') === -1 && this.inputValue.indexOf('-') === -1) {
+                    this.inputValue = `${symbol}${this.inputValue}`;
+                }
             },
 
             clearFields: function () {
@@ -548,22 +663,52 @@
                 }
             },
             numericPressed: function (value) {
-                if (this.inputMode !== 'NONE') {
+                if (this.isEnteringRegister1 || this.isEnteringRegister2 || this.isEnteringRegister3) {
+                    // Determine which register is currently being edited
+                    let currentRegister;
+                    if (this.isEnteringRegister1) {
+                        currentRegister = this.register1;
+                    } else if (this.isEnteringRegister2) {
+                        currentRegister = this.register2;
+                    } else if (this.isEnteringRegister3) {
+                        currentRegister = this.register3;
+                    }
+
+                    // Check if the current register value length (including + or -) exceeds 5 characters
+                    if (currentRegister.length >= 6) {
+                        return; // Prevent further input
+                    }
+
+                    // Continue with numeric input
+                    if (currentRegister === null || currentRegister === '') {
+                        currentRegister = '+';
+                    }
+                    currentRegister = `${currentRegister}${value}`;
+
+                    // Update the appropriate register based on the editing mode
+                    if (this.isEnteringRegister1) {
+                        this.register1 = currentRegister;
+                    } else if (this.isEnteringRegister2) {
+                        this.register2 = currentRegister;
+                    } else if (this.isEnteringRegister3) {
+                        this.register3 = currentRegister;
+                    }
+                } else if (this.inputMode !== 'NONE') {
+                    // Existing logic for VERB and NOUN
                     this.inputValue = `${this.inputValue}${value}`;
                     if (this.inputValue.length >= 2) {
                         if (this.inputMode === 'VERB') {
                             this.verb = this.inputValue;
-                            this.isFlashingVerb = false;  // Stop flashing for VERB
+                            this.isFlashingVerb = false; // Stop flashing for VERB
                         } else if (this.inputMode === 'NOUN') {
                             this.noun = this.inputValue;
-                            this.isFlashingNoun = false;  // Stop flashing for NOUN
+                            this.isFlashingNoun = false; // Stop flashing for NOUN
                         }
                         this.inputValue = ''; // Reset inputValue
                         this.inputMode = 'NONE'; // Reset inputMode
                     }
                 }
             }
-
 
         }
     });

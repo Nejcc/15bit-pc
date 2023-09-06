@@ -35,6 +35,7 @@
 }
 
 .lcd {
+    height: 103px;
     background-color: #a4b09d;
     text-align: center;
     padding: 0px;
