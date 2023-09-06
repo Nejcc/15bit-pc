@@ -109,7 +109,7 @@
                                     </div>
                                 </div>
                                 <div class="col-3">
-                                    <div class="key-text">
+                                    <div class="key-text" @click="resetActionLog">
                                         <div class="key-type">
                                             ERROR<br>RESET
                                         </div>
@@ -239,10 +239,33 @@
                 </tr>
                 </tbody>
             </table>
+            <h2>Action log</h2>
+            <table class="table mt-3 table-bordered table-dark">
+                <thead>
+                <tr>
+                    <th>Verb</th>
+                    <th>Noun</th>
+                    <th>Register 1</th>
+                    <th>Register 2</th>
+                    <th>Register 3</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in actionLog" :key="item.verb + item.noun">
+                    <td>{{ item.verb }}</td>
+                    <td>{{ item.noun }}</td>
+                    <td>{{ item.register1 }}</td>
+                    <td>{{ item.register2 }}</td>
+                    <td>{{ item.register3 }}</td>
+                </tr>
+                </tbody>
+            </table>
+
         </div>
     </div>
     <div class="row">
         <p>VERB: 16 (continues display) + NOUN (65) Time</p>
+        <p>VERB: 34 terminate</p>
     </div>
 </div>
 <script>
@@ -283,10 +306,15 @@
             //verb
             //load3-> register 3
         },
-        '34': {
-            //verb
-            //terminate
-            // for example stop continues display update
+        '34': function (RAM, vueInstance) {
+            // Stop continuous updates
+            RAM.isContinuouslyUpdating = false;
+            vueInstance.updateAllowed = false;  // Disable updates
+
+            // Clear the registers to their default states
+            // vueInstance.register1 = '000000';
+            // vueInstance.register2 = '000000';
+            // vueInstance.register3 = '000000';
         },
         '41': {
             //verb
@@ -351,6 +379,7 @@
     var app = new Vue({
         el: '#app',
         data: {
+            actionLog: [],
             inputValue: '',
             prevVerb: '00',
             prevNoun: '00',
@@ -418,13 +447,30 @@
                 }
             },
             enterPressed: function () {
+
                 // Check if the current verb has the enableContinuousUpdates flag
                 const verbData = ROMDictionary[this.verb];
+                const nounData = ROMDictionary[this.noun];
+
+                if (this.verb === '34') {
+                    ROMDictionary['34'](RAMDictionary, this);
+                    // Log the current action
+                    this.actionLog.push({
+                        verb: this.verb,
+                        noun: this.noun,
+                        register1: this.register1,
+                        register2: this.register2,
+                        register3: this.register3
+                    });
+                    return;  // Early return to skip the rest of the logic
+                }
+
+
                 if (verbData && verbData.enableContinuousUpdates) {
                     // If so, enable continuous updates
                     RAMDictionary.isContinuouslyUpdating = true;
                     this.updateAllowed = true;  // Enable updates
-                    return;  // Exit the method early
+                    // return;  // Exit the method early
                 }
 
                 // Handle other specific verb-noun combinations
@@ -433,6 +479,27 @@
                 } else if (nounData && typeof nounData === 'function') {
                     nounData(RAMDictionary, this);
                 }
+
+                this.updateRegisters();
+
+                // Log the current action
+                this.actionLog.push({
+                    verb: this.verb,
+                    noun: this.noun,
+                    register1: this.register1,
+                    register2: this.register2,
+                    register3: this.register3
+                });
+
+                // console.log(this.actionLog);
+            },
+
+            resetActionLog: function () {
+                this.actionLog = [];
+                this.register1 = '000000';
+                this.register2 = '000000';
+                this.register3 = '000000';
+                this.updateAllowed = false;
             },
 
             setVerb: function () {
