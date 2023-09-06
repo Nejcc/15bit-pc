@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Partis.si</title>
+    <!-- BOOTSTRAP CSS IMPORT -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link href="https://fonts.cdnfonts.com/css/lcd" rel="stylesheet">
+    <link href="disky.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+</head>
+<body style="background-color: #85837d">
+<div class="container-fluid" id="app">
+    <div class="row justify-content-center">
+        <div class="col-3">
+            <h2 class="text-center">ROM</h2>
+            <table class="table table-bordered table-dark">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Key</th>
+                    <th>Value</th>
+                    <th>Data</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in ROMItems" :key="item.key">
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.key }}</td>
+                    <td>{{ item.value }}</td>
+                    <td>{{ item.data }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-6">
+            <h2>pc</h2>
+            <div class="panel">
+                <div class="panel-div">
+                    <div class="row ">
+                        <div class="col-6 ">
+                            <div class="row px-5">
+                                <div class="col-6 mb-4 text-center">
+                                    <span class="lcd-title">Activity</span>
+                                    <div class="lcd">
+                                        00
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-4 text-center">
+                                    <span class="lcd-title">Program</span>
+                                    <div class="lcd">
+                                        00
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-4 text-center">
+                                    <span class="lcd-title">Verb</span>
+                                    <div class="lcd">
+                                        <div :class="['lcd-text', { 'flashing': isFlashingVerb}]">
+                                            {{ inputMode === 'VERB' ? (inputValue || '00') : verb }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-4 text-center">
+                                    <span class="lcd-title">Noun</span>
+                                    <div class="lcd">
+                                        <div :class="['lcd-text', { 'flashing': isFlashingNoun  }]">
+                                            {{ inputMode === 'NOUN' ? (inputValue || '00') : noun }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-4 text-center">
+                                    <span class="lcd-title">register 1</span>
+                                    <div class="lcd">
+                                        {{ register1 }}
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-4 text-center">
+                                    <span class="lcd-title">register 2</span>
+                                    <div class="lcd">
+                                        {{ register2 }}
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-4 text-center">
+                                    <span class="lcd-title">register 3</span>
+                                    <div class="lcd">
+                                        {{ register3 }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row keypad">
+                                <div class="col-12 text-center text-white text-uppercase mb-5">
+
+                                </div>
+                                <div class="col-3">
+                                    <div class="key-text">
+                                        <div class="key-type">
+                                            KEY<br>RLSE
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="lcd">
+                                        00000
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key-text">
+                                        <div class="key-type">
+                                            ERROR<br>RESET
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <hr>
+                                    <div class="text-center text-white">15bit pc - keyboard</div>
+                                    <hr>
+                                </div>
+
+                                <div class="col-3">
+                                    <div class="key-text" @click="clearFields">
+                                        <div class="key-type">
+                                            CLEAR
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key-text" @click="setVerb">
+                                        <div class="key-type">
+                                            VERB
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key-text" @click="setNoun">
+                                        <div class="key-type">
+                                            NOUN
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key-text" @click="enterPressed">
+                                        <div class="key-type">
+                                            ENTER
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-3">
+                                    <div class="key">
+                                        <div class="key-type">+</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key" @click="numericPressed(7,$event)">
+                                        <div class="key-type">7</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key" @click="numericPressed(8,$event)">
+                                        <div class="key-type">8</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key" @click="numericPressed(9,$event)">
+                                        <div class="key-type">9</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-3">
+                                    <div class="key">
+                                        <div class="key-type">-</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key" @click="numericPressed(4,$event)">
+                                        <div class="key-type">4</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key" @click="numericPressed(5,$event)">
+                                        <div class="key-type">5</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key" @click="numericPressed(6,$event)">
+                                        <div class="key-type">6</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-3">
+                                    <div class="key" @click="numericPressed(0,$event)">
+                                        <div class="key-type">0</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key" @click="numericPressed(1,$event)">
+                                        <div class="key-type">1</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key" @click="numericPressed(2,$event)">
+                                        <div class="key-type">2</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="key" @click="numericPressed(3,$event)">
+                                        <div class="key-type">3</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <h2>RAM</h2>
+            <table class="table table-bordered table-dark">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Key</th>
+                    <th>Value</th>
+                    <th>Data</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in ROMItems" :key="item.key">
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.key }}</td>
+                    <td>{{ item.value }}</td>
+                    <td>{{ item.data }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <p>VERB: 16 (continues display) + NOUN (65) Time</p>
+    </div>
+</div>
+<script>
+
+
+    function formatNumberToSixDigits(num) {
+        let str = num.toString();
+        if (str.length > 6) {
+            str = str.substring(str.length - 6);  // Take last 6 digits if number is too long
+        }
+        return str;
+    }
+
+    const RAMDictionary = {
+        timeOfMeasurement: null,
+        isContinuouslyUpdating: false,
+        angles: []
+    };
+
+    // Define the ROM Dictionary here  list of(verbs and noun)
+    const ROMDictionary = {
+        '06': {
+            //verb
+            //display
+        },
+        '16': {
+            enableContinuousUpdates: true,
+        },
+        '21': {
+            //verb
+            //load1  -> register 1
+        },
+        '22': {
+            //verb
+            //load2 -> register 2
+        },
+        '23': {
+            //verb
+            //load3-> register 3
+        },
+        '34': {
+            //verb
+            //terminate
+            // for example stop continues display update
+        },
+        '41': {
+            //verb
+            //terminate
+            // for example stop continues display update
+        },
+        '55': function (RAM, vueInstance) {
+            //noun
+            //optics
+            // shown angles
+            // here is different process  when press enter  the computer  request to put parameters in like angle and noun and verb together are flashing and numbers in VERB and NOUN  change to VERB:21 (like load the first component  first angle ) and NOUN 55 as Angle
+            // so here we need to type for example +18000  (180 defrees) then when you enter that  computer ask for the second angle VERB 22 (second angle for example is +32500) and when now press enter the position of angles start to change to point this target what we input in
+            // and when press enter to submit inputs   computer change the verb to 06 and noun to 56  and display R1: +18000 (angles )R2: +32500 (angles) R3: +07786 for example (the time when this mesurment was made / inserted)
+
+
+            RAM.angles.push(vueInstance.inputValue);
+            if (RAM.angles.length === 1) {
+                vueInstance.verb = '21';
+            } else if (RAM.angles.length === 2) {
+                vueInstance.verb = '22';
+            } else {
+                vueInstance.verb = '06';
+                vueInstance.noun = '56';
+                RAM.timeOfMeasurement = formatNumberToSixDigits(Math.floor(Date.now() / 1000));
+            }
+
+        },
+        '56': {
+            //noun
+            //mark information
+        },
+        '57': {
+            //noun
+            //ANGLE
+        },
+        '65': function () {
+            const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+
+            // Calculate hours and hundreds of hours
+            const hours = Math.floor(currentTimeInSeconds / 3600) % 1000; // Modulo to fit into 3 digits
+            const hundredsOfHours = Math.floor((currentTimeInSeconds % 3600) / 36);
+
+            // Calculate seconds and hundreds of seconds
+            const seconds = currentTimeInSeconds % 60;
+            const hundredsOfSeconds = Math.floor((currentTimeInSeconds % 60) * 100 / 60);
+
+            // Format the values into six-digit strings
+            const register1 = `+${String(hours % 1000).padStart(3, '0')}${String(hundredsOfHours).padStart(2, '0')}`;
+            const register2 = `+${String(seconds).padStart(3, '0')}${String(hundredsOfSeconds).padStart(2, '0')}`;
+
+            return {
+                register1: register1,  // timeview >  format symbol + hours + hundreds of hours  => +/- 000 00  (98.65h)
+                register2: register2,  // timeview > format symbol + seconds + hundreds of seconds  => +/- 000 00
+                register3: ''  // empty
+            };
+        }
+
+
+    };
+
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            inputValue: '',
+            prevVerb: '00',
+            prevNoun: '00',
+            isFlashingVerb: false,
+            isFlashingNoun: false,
+            verb: '00',
+            noun: '00',
+            register1: '000000',
+            register2: '000000',
+            register3: '000000',
+            inputMode: null,
+            updateAllowed: false,
+            ROMItems: [],
+            isContinuouslyUpdating: false,  // To control the continuous update of display
+        },
+        created() {
+            this.updateRegisters();
+            setInterval(this.updateRegisters, 1000); // Call updateRegisters every 1 second (1000 milliseconds)
+        },
+        mounted: function () {
+            // Populate ROMItems when the component is mounted
+            this.populateROMItems();
+        },
+        methods: {
+
+            executeVerbNoun() {
+                const verbNounFunction = ROMDictionary[this.verb];
+                if (typeof verbNounFunction === 'function') {
+                    verbNounFunction(RAMDictionary, this);
+                }
+            },
+
+            updateRegisters: function () {
+                if (!this.updateAllowed) return;
+
+                // If continuous updating is enabled for the current verb, update registers
+                if (RAMDictionary.isContinuouslyUpdating && ROMDictionary[this.verb] && ROMDictionary[this.verb].enableContinuousUpdates) {
+                    const dataToUpdate = ROMDictionary[this.noun]();
+                    if (dataToUpdate) {
+                        this.register1 = dataToUpdate.register1 || '000000';
+                        this.register2 = dataToUpdate.register2 || '000000';
+                        this.register3 = dataToUpdate.register3 || '000000';  // Default to '+00000' if empty
+                    }
+                    return;
+                }
+
+                // Handle specific verb-noun combinations
+                const verbData = ROMDictionary[this.verb];
+                const nounData = ROMDictionary[this.noun];
+
+                if (verbData && typeof verbData === 'function') {
+                    const dataToUpdate = verbData(RAMDictionary, this);
+                    if (dataToUpdate) {
+                        this.register1 = `+${formatNumberToSixDigits(dataToUpdate.register1.replace('+', ''))}`;
+                        this.register2 = `+${formatNumberToSixDigits(dataToUpdate.register2.replace('+', ''))}`;
+                        this.register3 = `+${formatNumberToSixDigits(dataToUpdate.register3.replace('+', ''))}`;
+                    }
+                } else if (nounData && typeof nounData === 'function') {
+                    const dataToUpdate = nounData(RAMDictionary, this);
+                    if (dataToUpdate) {
+                        this.register1 = dataToUpdate.register1;
+                        this.register2 = dataToUpdate.register2;
+                        this.register3 = dataToUpdate.register3;
+                    }
+                }
+            },
+            enterPressed: function () {
+                // Check if the current verb has the enableContinuousUpdates flag
+                const verbData = ROMDictionary[this.verb];
+                if (verbData && verbData.enableContinuousUpdates) {
+                    // If so, enable continuous updates
+                    RAMDictionary.isContinuouslyUpdating = true;
+                    this.updateAllowed = true;  // Enable updates
+                    return;  // Exit the method early
+                }
+
+                // Handle other specific verb-noun combinations
+                if (verbData && typeof verbData === 'function') {
+                    verbData(RAMDictionary, this);
+                } else if (nounData && typeof nounData === 'function') {
+                    nounData(RAMDictionary, this);
+                }
+            },
+
+            setVerb: function () {
+                this.prevNoun = this.noun;  // Store the current noun
+                this.isFlashingNoun = false;  // Stop flashing for NOUN
+                this.isFlashingVerb = true;  // Start flashing for VERB
+                this.inputValue = '';
+                this.inputMode = 'VERB';
+            },
+            setNoun: function () {
+                this.prevVerb = this.verb;  // Store the current verb
+                this.isFlashingVerb = false;  // Stop flashing for VERB
+                this.isFlashingNoun = true;  // Start flashing for NOUN
+                this.inputValue = '';
+                this.inputMode = 'NOUN';
+            },
+
+            clearFields: function () {
+                this.verb = '00';
+                this.noun = '00';
+                this.inputValue = '';
+                this.isFlashingVerb = false;  // Stop flashing for VERB
+                this.isFlashingNoun = false;  // Stop flashing for NOUN
+                this.inputMode = 'NONE';
+            },
+            populateROMItems: function () {
+                // Clear the existing items
+                this.ROMItems = [];
+
+                // Check if ROMDictionary is initialized
+                if (this.ROMDictionary) {
+                    for (const [key, value] of Object.entries(this.ROMDictionary)) {
+                        this.ROMItems.push({
+                            name: `${key}`,
+                            key: key,
+                            value: value.toString(), // Convert function to string
+                            data: 'Your data here'
+                        });
+                    }
+                } else {
+                    console.warn("ROMDictionary is not initialized.");
+                }
+            },
+            numericPressed: function (value) {
+                if (this.inputMode !== 'NONE') {
+                    this.inputValue = `${this.inputValue}${value}`;
+                    if (this.inputValue.length >= 2) {
+                        if (this.inputMode === 'VERB') {
+                            this.verb = this.inputValue;
+                            this.isFlashingVerb = false;  // Stop flashing for VERB
+                        } else if (this.inputMode === 'NOUN') {
+                            this.noun = this.inputValue;
+                            this.isFlashingNoun = false;  // Stop flashing for NOUN
+                        }
+                        this.inputValue = ''; // Reset inputValue
+                        this.inputMode = 'NONE'; // Reset inputMode
+                    }
+                }
+            }
+
+
+        }
+    });
+</script>
+</body>
+</html>

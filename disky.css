@@ -1,0 +1,147 @@
+@font-face {
+    font-family: 'Gorton-Digital-Regular';
+    src: url('Gorton-Digital-Regular.ttf.woff') format('woff'),
+    url('Gorton-Digital-Regular.ttf.svg#Gorton-Digital-Regular') format('svg'),
+    url('Gorton-Digital-Regular.ttf.eot'),
+    url('Gorton-Digital-Regular.eot?#iefix') format('embedded-opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Negotiate-Free';
+    src: url('Negotiate-Free.ttf.woff') format('woff'),
+    url('Negotiate-Free.ttf.svg#Negotiate-Free') format('svg'),
+    url('Negotiate-Free.ttf.eot'),
+    url('Negotiate-Free.eot?#iefix') format('embedded-opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    font-family: 'Gorton-Digital-Regular', 'Negotiate-Free';
+    letter-spacing: 1px;
+}
+
+.panel {
+    margin: 10px;
+    background-color: #6a6a6a;
+    padding: 10px;
+    box-shadow: 0px 2px 4px #000;
+}
+
+.panel-div {
+    display: block;
+}
+
+.lcd {
+    background-color: #a4b09d;
+    text-align: center;
+    padding: 0px;
+    font-size: 65px;
+    font-weight: bold;
+    width: 100%;
+    margin: 10px auto;
+    font-family: 'LCD', sans-serif, 'Courier New', monospace;
+    box-shadow: 0px 0px 10px #444;
+    border: 3px solid #333;
+    border-radius: 2px;
+    color: #0F0;
+    letter-spacing: 12px;
+    background-size: 1px 1px, 1px 1px;
+}
+
+.lcd-title {
+    font-family: 'Negotiate-Free';
+    color: #dadada;
+    text-transform: uppercase;
+    /*font-weight: bold;*/
+}
+
+.lcd .lcd-text {
+    font-family: 'LCD', sans-serif, 'Courier New', monospace;
+    color: #dadada;
+    text-transform: uppercase;
+    color: #0F0;
+    /*font-weight: bold;*/
+    letter-spacing: 12px;
+}
+
+/* Bootstrap column override */
+.col-3 {
+    padding: 5px; /* Margin between keys */
+}
+
+/* Style for text keys and numeric keys */
+.key-text, .key {
+    width: 120px; /* Take up full width of the parent container */
+    height: 120px; /* Take up full width of the parent container */
+    padding: 25px; /* 1:1 Aspect Ratio to make it square */
+    position: relative; /* If you want text inside of it */
+    background-color: #333;
+    color: #FFF;
+    /*margin-top: 10px;*/
+    font-size: 30px;
+    vertical-align: center;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0px 4px 6px #000;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.key {
+    margin-top: 10px;
+}
+
+/* Center the text inside the square */
+.key-text::after, .key::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.key-text > div, .key > div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px; /* Increase font size */
+}
+
+/* Hover effect */
+.key-text:hover, .key:hover {
+    box-shadow: 0px 2px 4px #000;
+}
+
+.key-text .key-type {
+    font-size: 25px;
+}
+
+.table-dark {
+    background-color: #333;
+    color: #FFF;
+}
+
+.flashing {
+    animation: flash 0.5s infinite alternate;
+}
+
+@keyframes flash {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0.2;
+    }
+}
